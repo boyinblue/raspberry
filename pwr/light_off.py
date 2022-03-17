@@ -1,10 +1,10 @@
 import RPi.GPIO as GPIO
 
-def pwr_off():
+def light_off():
     #GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(14, GPIO.OUT)
-    GPIO.output(14, True) #Low Active
+    GPIO.setup(15, GPIO.OUT)
+    GPIO.output(15, True) #Low Active
 
 if __name__ == '__main__':
-    pwr_off()
+    light_off()
