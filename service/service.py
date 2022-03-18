@@ -41,6 +41,7 @@ def sensor_off():
 #        print(cnt)
         cnt += 0.1
         if cnt > 300:
+#        if cnt > 5:
             light_off.light_off()
             cnt = 0
             state = 0
