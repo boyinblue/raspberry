@@ -6,15 +6,15 @@ python3 ../led/led.py g on
 
 process=$(ps -ef)
 
-for line in ${process}
-do
-	if [[ "${line}" == *"python3 service.py"* ]]; then
-		exist="True"
-	fi
-done
+if [[ "${process}" == *"python3 service.py"* ]]; then
+	exist="True"
+fi
 
 if [ "${exist}" == "False" ]; then
+	echo "Not exists. Run!"
 	python3 service.py &
+else
+	echo "Already exists"
 fi
 
 #python3 ../led/led.py g off
