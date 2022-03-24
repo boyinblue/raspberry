@@ -1,3 +1,5 @@
-*/__pycache__/*
-*.pyc
 get_public_ip/tmp
+
+# Byte-compiled / optimized / DLL files
+service/__pycache__/
+*.py[cod]

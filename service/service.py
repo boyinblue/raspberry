@@ -2,10 +2,12 @@ import sys
 
 sys.path.append("../pwr")
 sys.path.append("../led")
+sys.path.append("../buzzer")
 
 import light_on
 import light_off
 import led
+import buzzer
 
 import RPi.GPIO as GPIO
 import time
@@ -32,10 +34,13 @@ def sensor_turn_on():
 
 def sensor_on():
     led.led_r_toggle()
+    buzzer.buzzer_on()
 
 def sensor_off():
     global state
     global cnt
+
+    buzzer.buzzer_off()
 
     if state != 0:
 #        print(cnt)
