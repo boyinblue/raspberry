@@ -1,38 +1,42 @@
 import RPi.GPIO as GPIO
 import sys
 
+led_r_pin = 21
+led_g_pin = 20
+led_b_pin = 16
+
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(16, GPIO.OUT)
-GPIO.setup(20, GPIO.OUT)
-GPIO.setup(21, GPIO.OUT)
+GPIO.setup(led_r_pin, GPIO.OUT)
+GPIO.setup(led_g_pin, GPIO.OUT)
+GPIO.setup(led_b_pin, GPIO.OUT)
 
 def led_r_on():
-    GPIO.output(16, True)
+    GPIO.output(led_r_pin, True)
 
 def led_r_off():
-    GPIO.output(16, False)
+    GPIO.output(led_r_pin, False)
 
 def led_g_on():
-    GPIO.output(20, True)
+    GPIO.output(led_g_pin, True)
 
 def led_g_off():
-    GPIO.output(20, False)
+    GPIO.output(led_g_pin, False)
 
 def led_b_on():
-    GPIO.output(21, True)
+    GPIO.output(led_b_pin, True)
 
 def led_b_off():
-    GPIO.output(21, False)
+    GPIO.output(led_b_pin, False)
 
 def is_led_r_on():
-    return GPIO.input(16)
+    return GPIO.input(led_r_pin)
 
 def is_led_g_on():
-    return GPIO.input(20)
+    return GPIO.input(led_g_pin)
 
 def is_lef_b_on():
-    return GPIO.input(21)
+    return GPIO.input(led_b_pin)
 
 def led_r_toggle():
     if is_led_r_on():
@@ -53,15 +57,14 @@ def led_b_toggle():
         led_b_on()
 
 def main():
-    pin_num = 16
-
+    pin_num = led_r_pin
 
     if sys.argv[1] == "r":
-        pin_num = 16
+        pin_num = led_r_pin
     elif sys.argv[1] == "g":
-        pin_num = 20
+        pin_num = led_g_pin
     elif sys.argv[1] == 'b':
-        pin_num = 21
+        pin_num = led_b_pin
 
     if sys.argv[2] == "on":
         GPIO.output(pin_num, True)
