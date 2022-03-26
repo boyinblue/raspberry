@@ -26,6 +26,7 @@ def init():
     atexit.register(exit_handler)
 
     light_off.light_off()
+    light_off.sensor_light_off()
     buzzer.buzzer_off()
 
     led.led_r_off()
@@ -34,6 +35,7 @@ def init():
 
 def exit_handler():
     light_off.light_off()
+    light_off.sensor_light_off()
 
 def sensor_turn_on():
     global cnt_for_off
@@ -46,7 +48,7 @@ def sensor_turn_on():
 
     cnt_for_off = 0
     state = 1
-    light_on.light_on()
+    light_on.sensor_light_on()
 
 def sensor_turn_off():
     if sensor_option == False:
@@ -72,7 +74,7 @@ def sensor_off():
         cnt_for_off += 0.1
         if cnt_for_off > 60:
 #        if cnt > 5:
-            light_off.light_off()
+            light_off.sensor_light_off()
             cnt_for_off = 0
             state = 0
 
