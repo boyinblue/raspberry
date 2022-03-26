@@ -63,6 +63,8 @@ def sensor_off():
     global cnt_for_off
     global sensor_option
 
+    led.led_r_off()
+
 #    buzzer.buzzer_off()
     if sensor_option == False:
         cnt_for_off = 0
