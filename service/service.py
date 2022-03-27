@@ -17,13 +17,21 @@ import atexit
 pipe_path = "/tmp/mypipe"
 
 cnt_for_off = 0
-state = 0
+state = {"sensor":0}
 sensor_option = True
+value_prev = {}
+
+pin_num_sensor = 18
+pin_num_sw4 = 5
 
 def init():
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(18, GPIO.IN)
+    GPIO.setup(pin_num_sensor, GPIO.IN)
+    GPIO.setup(pin_num_sw4, GPIO.IN)
     atexit.register(exit_handler)
+
+    value_prev[pin_num_sensor] = False
+    value_prev[pin_num_sw4] = False
 
     light_off.light_off()
     light_off.sensor_light_off()
@@ -47,8 +55,9 @@ def sensor_turn_on():
         return
 
     cnt_for_off = 0
-    state = 1
+    state['sensor'] = 1
     light_on.sensor_light_on()
+    print("Sensor Light Turn On")
 
 def sensor_turn_off():
     if sensor_option == False:
@@ -67,18 +76,19 @@ def sensor_off():
 
 #    buzzer.buzzer_off()
     if sensor_option == False:
+        light_off.sensor_light_off()
         cnt_for_off = 0
-        state = 0
+        state['sensor'] = 0
         return
 
-    if state != 0:
+    if state['sensor'] != 0:
 #        print(cnt)
         cnt_for_off += 0.1
         if cnt_for_off > 60:
 #        if cnt > 5:
             light_off.sensor_light_off()
             cnt_for_off = 0
-            state = 0
+            state['sensor'] = 0
 
 def open_pipe():
     if not os.path.exists(pipe_path):
@@ -103,26 +113,38 @@ def handle_pipe(pipe):
         elif message[:14] == "Sensor Disable":
             sensor_option = False
 
+def handle_sensor():
+    value = GPIO.input(pin_num_sensor)
+    if value != value_prev[pin_num_sensor]:
+        value_prev[pin_num_sensor] = value
+        if value == 1:
+            sensor_turn_on()
+        else:
+            sensor_turn_off()
+
+    if value == 0:
+        sensor_off()
+    else:
+        sensor_on()
+
+def handle_switch():
+    global sensor_option
+
+    sw4 = GPIO.input(pin_num_sw4)
+    if sw4 != value_prev[pin_num_sw4]:
+        value_prev[pin_num_sw4] = sw4
+        if sw4 == 0:
+            sensor_option = not sensor_option
+            print("Sensor Option Changed :", sensor_option)
+
 def main():
-    value_prev = 0
     run_cnt = 0
     pipe = open_pipe()
 
     while True:
         handle_pipe(pipe)
-
-        value = GPIO.input(18)
-        if value != value_prev:
-            value_prev = value
-            if value == 1:
-                sensor_turn_on()
-            else:
-                sensor_turn_off()
-
-        if value == 0:
-            sensor_off()
-        else:
-            sensor_on()
+        handle_sensor()
+        handle_switch()
 
         run_cnt = run_cnt + 0.1
         if run_cnt >= 1:
