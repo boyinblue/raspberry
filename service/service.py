@@ -22,6 +22,7 @@ sensor_option = True
 value_prev = {}
 
 pin_num_sensor = 18
+pin_num_sw3 = 4
 pin_num_sw4 = 5
 
 def init():
@@ -31,6 +32,7 @@ def init():
     atexit.register(exit_handler)
 
     value_prev[pin_num_sensor] = False
+    value_prev[pin_num_sw3] = False
     value_prev[pin_num_sw4] = False
 
     light_off.light_off()
@@ -90,6 +92,21 @@ def sensor_off():
             cnt_for_off = 0
             state['sensor'] = 0
 
+def set_sensor_option(option):
+    global sensor_option
+
+    if sensor_option != option:
+        sensor_option = option
+        print("Set Sensor Option :", sensor_option)
+
+        if not sensor_option:
+            light_off.sensor_light_off()
+        elif value_prev[pin_num_sensor]:
+            light_on.sensor_light_on()
+
+def toggle_sensor_option():
+    set_sensor_option(not sensor_option)
+
 def open_pipe():
     if not os.path.exists(pipe_path):
         os.mkfifo(pipe_path)
@@ -109,9 +126,9 @@ def handle_pipe(pipe):
         elif message[:13] == "Turn On Light":
             light_on.light_on()
         elif message[:13] == "Sensor Enable":
-            sensor_option = True
+            set_sensor_option(True)
         elif message[:14] == "Sensor Disable":
-            sensor_option = False
+            set_sensor_option(False)
 
 def handle_sensor():
     value = GPIO.input(pin_num_sensor)
@@ -134,8 +151,13 @@ def handle_switch():
     if sw4 != value_prev[pin_num_sw4]:
         value_prev[pin_num_sw4] = sw4
         if sw4 == 0:
-            sensor_option = not sensor_option
-            print("Sensor Option Changed :", sensor_option)
+            toggle_sensor_option()
+            
+    sw3 = GPIO.input(pin_num_sw3)
+    if sw3 != value_prev[pin_num_sw3]:
+        value_prev[pin_num_sw3] = sw3
+        if sw3 == 0:
+            toggle_sensor_option()
 
 def main():
     run_cnt = 0
