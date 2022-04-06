@@ -5,8 +5,7 @@ sys.path.append("../pwr")
 sys.path.append("../led")
 sys.path.append("../buzzer")
 
-import light_on
-import light_off
+import light
 import led
 import buzzer
 
@@ -29,14 +28,16 @@ def init():
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(pin_num_sensor, GPIO.IN)
     GPIO.setup(pin_num_sw4, GPIO.IN)
+    GPIO.setup(pin_num_sw3, GPIO.IN)
     atexit.register(exit_handler)
 
     value_prev[pin_num_sensor] = False
     value_prev[pin_num_sw3] = False
     value_prev[pin_num_sw4] = False
 
-    light_off.light_off()
-    light_off.sensor_light_off()
+    light.light_init()
+    light.light_off()
+    light.sensor_light_off()
     buzzer.buzzer_off()
 
     led.led_r_off()
@@ -44,8 +45,8 @@ def init():
     led.led_b_off()
 
 def exit_handler():
-    light_off.light_off()
-    light_off.sensor_light_off()
+    light.light_off()
+    light.sensor_light_off()
 
 def sensor_turn_on():
     global cnt_for_off
@@ -58,7 +59,7 @@ def sensor_turn_on():
 
     cnt_for_off = 0
     state['sensor'] = 1
-    light_on.sensor_light_on()
+    light.sensor_light_on()
     print("Sensor Light Turn On")
 
 def sensor_turn_off():
@@ -78,7 +79,7 @@ def sensor_off():
 
 #    buzzer.buzzer_off()
     if sensor_option == False:
-        light_off.sensor_light_off()
+        light.sensor_light_off()
         cnt_for_off = 0
         state['sensor'] = 0
         return
@@ -88,7 +89,7 @@ def sensor_off():
         cnt_for_off += 0.1
         if cnt_for_off > 60:
 #        if cnt > 5:
-            light_off.sensor_light_off()
+            light.sensor_light_off()
             cnt_for_off = 0
             state['sensor'] = 0
 
@@ -100,9 +101,9 @@ def set_sensor_option(option):
         print("Set Sensor Option :", sensor_option)
 
         if not sensor_option:
-            light_off.sensor_light_off()
+            light.sensor_light_off()
         elif value_prev[pin_num_sensor]:
-            light_on.sensor_light_on()
+            light.sensor_light_on()
 
 def toggle_sensor_option():
     set_sensor_option(not sensor_option)
@@ -122,9 +123,9 @@ def handle_pipe(pipe):
         print("Received : ", message)
 
         if message[:14] == "Turn Off Light":
-            light_off.light_off()
+            light.light_off()
         elif message[:13] == "Turn On Light":
-            light_on.light_on()
+            light.light_on()
         elif message[:13] == "Sensor Enable":
             set_sensor_option(True)
         elif message[:14] == "Sensor Disable":
@@ -157,7 +158,7 @@ def handle_switch():
     if sw3 != value_prev[pin_num_sw3]:
         value_prev[pin_num_sw3] = sw3
         if sw3 == 0:
-            toggle_sensor_option()
+            light.light_toggle()
 
 def main():
     run_cnt = 0
