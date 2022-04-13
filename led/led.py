@@ -29,13 +29,18 @@ def led_b_on():
 def led_b_off():
     GPIO.output(led_b_pin, False)
 
+def led_all_off():
+    led_r_off()
+    led_g_off()
+    led_b_off()
+
 def is_led_r_on():
     return GPIO.input(led_r_pin)
 
 def is_led_g_on():
     return GPIO.input(led_g_pin)
 
-def is_lef_b_on():
+def is_led_b_on():
     return GPIO.input(led_b_pin)
 
 def led_r_toggle():
