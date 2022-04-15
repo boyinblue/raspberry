@@ -5,7 +5,7 @@ import time
 
 pin_num = None
 
-def serbo_init(serbo_pin_num = 18):
+def serbo_init(serbo_pin_num = 19):
     global pin_num
 
     GPIO.setmode(GPIO.BCM)

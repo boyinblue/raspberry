@@ -1,1 +1,0 @@
-../pwr/light_off.py

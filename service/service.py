@@ -6,7 +6,8 @@ sys.path.append("../led")
 sys.path.append("../buzzer")
 sys.path.append("../ir_recv")
 
-import light
+from light import LightCtrl
+import pwr
 import led
 import buzzer
 import pyirw
@@ -22,27 +23,38 @@ state = {"sensor":0}
 sensor_option = True
 value_prev = {
     "sensor":False,
-    "sw3":True,
+    "sw1":False,
+    "sw2":True,
+    "sw3":False,
     "sw4":True }
 value_cur = {
     "sensor":False,
+    "sw1":False,
+    "sw2":False,
     "sw3":False,
     "sw4":False }
 pin_nums = {
+    "light":27,
+    "sensor_light":22,
     "sensor":18,
-    "sw3":4,
-    "sw4":5,
+    "sw1":24,
+    "sw2":4,
+    "sw3":26,
+    "sw4":6,
     "buzzer":25}
+sensors = [ "sensor", "sw1", "sw2", "sw3", "sw4" ]
+
+light = LightCtrl(pin_nums['light'], True)
+sensor_light = LightCtrl(pin_nums['sensor_light'], True)
 
 def init():
     GPIO.setmode(GPIO.BCM)
-    for pin_num in pin_nums.values():
-        GPIO.setup(pin_num, GPIO.IN)
+    for sensor in sensors:
+        GPIO.setup(pin_nums[sensor], GPIO.IN)
     atexit.register(exit_handler)
 
-    light.light_init()
-    light.light_off()
-    light.sensor_light_off()
+    pwr.pwr_init()
+
     buzzer.buzzer_init(pin_nums['buzzer'])
 
     led.led_all_off()
@@ -50,8 +62,8 @@ def init():
     pyirw.init_irw(blocking = False)
 
 def exit_handler():
-    light.light_off()
-    light.sensor_light_off()
+    light.off()
+    sensor_light.off()
 
 def sensor_turn_on():
     global cnt_for_off
@@ -64,7 +76,7 @@ def sensor_turn_on():
 
     cnt_for_off = 0
     state['sensor'] = 1
-    light.sensor_light_on()
+    sensor_light.on()
     print("Sensor Light Turn On")
 
 def sensor_turn_off():
@@ -81,7 +93,7 @@ def handle_sensor_light():
 
 #    buzzer.buzzer_off()
     if sensor_option == False:
-        light.sensor_light_off()
+        sensor_light.off()
         cnt_for_off = 0
         state['sensor'] = 0
         return
@@ -91,7 +103,7 @@ def handle_sensor_light():
         cnt_for_off += 0.1
         if cnt_for_off > 60:
 #        if cnt > 5:
-            light.sensor_light_off()
+            sensor_light.off()
             cnt_for_off = 0
             state['sensor'] = 0
 
@@ -103,9 +115,9 @@ def set_sensor_option(option):
         print("Set Sensor Option :", sensor_option)
 
         if not sensor_option:
-            light.sensor_light_off()
+            sensor_light.off()
         elif value_prev['sensor']:
-            light.sensor_light_on()
+            sensor_light.on()
             state['sensor'] = 1
 
 def toggle_sensor_option():
@@ -126,23 +138,13 @@ def handle_pipe(pipe):
         print("Received : ", message)
 
         if message[:14] == "Turn Off Light":
-            light.light_off()
+            sensor_light.off()
         elif message[:13] == "Turn On Light":
-            light.light_on()
+            sensor_light.on()
         elif message[:13] == "Sensor Enable":
             set_sensor_option(True)
         elif message[:14] == "Sensor Disable":
             set_sensor_option(False)
-
-def handle_sensor():
-    value_cur['sensor'] = GPIO.input(pin_nums['sensor'])
-    if value_cur['sensor'] != value_prev['sensor']:
-        value_prev['sensor'] = value_cur['sensor']
-
-    if value_cur['sensor'] == 0:
-        sensor_off()
-    else:
-        sensor_on()
 
 def handle_input():
     for key in value_cur.keys():
@@ -154,7 +156,13 @@ def handle_input():
                 toggle_sensor_option()
             elif key == 'sw3' and value_cur[key] == False:
                 print("toggle light")
-                light.light_toggle()
+                light.toggle()
+            elif key == 'sw2' and value_cur[key] == False:
+                print("pwr on board")
+                pwr.pwr_on()
+            elif key == 'sw1' and value_cur[key] == False:
+                print("pwr off board")
+                pwr.pwr_off()
             elif key == 'sensor' and value_cur[key] == True:
                 sensor_turn_on()
 
@@ -227,4 +235,7 @@ def main():
 
 if __name__ == '__main__':
     init()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        exit(0)
