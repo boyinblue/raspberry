@@ -5,8 +5,10 @@ sys.path.append("../pwr")
 sys.path.append("../led")
 sys.path.append("../buzzer")
 sys.path.append("../ir_recv")
+sys.path.append("../sensor")
 
 from light import LightCtrl
+from sensor import Sensor
 import pwr
 import led
 import buzzer
@@ -21,36 +23,18 @@ pipe_path = "/tmp/mypipe"
 cnt_for_off = 0
 state = {"sensor":0}
 sensor_option = True
-value_prev = {
-    "sensor":False,
-    "sw1":False,
-    "sw2":True,
-    "sw3":False,
-    "sw4":True }
-value_cur = {
-    "sensor":False,
-    "sw1":False,
-    "sw2":False,
-    "sw3":False,
-    "sw4":False }
 pin_nums = {
     "light":27,
     "sensor_light":22,
-    "sensor":18,
+    "ir_sensor":18,
     "sw1":24,
     "sw2":4,
     "sw3":26,
     "sw4":6,
     "buzzer":25}
-sensors = [ "sensor", "sw1", "sw2", "sw3", "sw4" ]
-
-light = LightCtrl(pin_nums['light'], True)
-sensor_light = LightCtrl(pin_nums['sensor_light'], True)
 
 def init():
     GPIO.setmode(GPIO.BCM)
-    for sensor in sensors:
-        GPIO.setup(pin_nums[sensor], GPIO.IN)
     atexit.register(exit_handler)
 
     pwr.pwr_init()
@@ -116,7 +100,7 @@ def set_sensor_option(option):
 
         if not sensor_option:
             sensor_light.off()
-        elif value_prev['sensor']:
+        elif ir_sensor.read(): 
             sensor_light.on()
             state['sensor'] = 1
 
@@ -147,24 +131,8 @@ def handle_pipe(pipe):
             set_sensor_option(False)
 
 def handle_input():
-    for key in value_cur.keys():
-        value_cur[key] = GPIO.input(pin_nums[key])
-        if value_cur[key] != value_prev[key]:
-            print("{} changes {}".format(key, value_cur[key]))
-            value_prev[key] = value_cur[key]
-            if key == 'sw4' and value_cur[key] == False:
-                toggle_sensor_option()
-            elif key == 'sw3' and value_cur[key] == False:
-                print("toggle light")
-                light.toggle()
-            elif key == 'sw2' and value_cur[key] == False:
-                print("pwr on board")
-                pwr.pwr_on()
-            elif key == 'sw1' and value_cur[key] == False:
-                print("pwr off board")
-                pwr.pwr_off()
-            elif key == 'sensor' and value_cur[key] == True:
-                sensor_turn_on()
+    for sensor in sensors:
+        sensor.sweep()
 
 def handle_ir_recv():
     keyname, updown = pyirw.read_key()
@@ -204,7 +172,7 @@ def handle_led():
         else:
             return
 
-    if value_cur['sensor'] == True:
+    if ir_sensor.read():
         led.led_all_off()
         led.led_r_on()
         handle_led.run_cnt = 0
@@ -220,6 +188,27 @@ def handle_led():
 handle_led.run_cnt = 0
 handle_led.manual = False
 handle_led.manual_cnt = 0
+
+light = LightCtrl(pin_nums['light'], True)
+sensor_light = LightCtrl(pin_nums['sensor_light'], True)
+
+ir_sensor = Sensor(pin_nums['ir_sensor'])
+ir_sensor.regist_on_callback(sensor_turn_on)
+
+sw1 = Sensor(pin_nums['sw1'], True)
+sw1.regist_on_callback(pwr.pwr_off)
+
+sw2 = Sensor(pin_nums['sw2'], True)
+sw2.regist_on_callback(pwr.pwr_on)
+
+sw3 = Sensor(pin_nums['sw3'], True)
+sw3.regist_on_callback(light.toggle)
+
+sw4 = Sensor(pin_nums['sw4'], True)
+sw4.regist_on_callback(toggle_sensor_option)
+
+sensors = [ ir_sensor, sw1, sw2, sw3, sw4 ]
+
 
 def main():
     run_cnt = 0
