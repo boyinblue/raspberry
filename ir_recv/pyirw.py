@@ -50,7 +50,8 @@ def read_key():
 
     if data:
         words = data.split()
-        return words[2], words[1]
+        if len(words) > 2:
+            return words[2], words[1]
 
     return '', ''
 

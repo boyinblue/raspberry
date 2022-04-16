@@ -6,6 +6,7 @@ sys.path.append("../led")
 sys.path.append("../buzzer")
 sys.path.append("../ir_recv")
 sys.path.append("../sensor")
+sys.path.append("../tts")
 
 from light import LightCtrl
 from sensor import Sensor
@@ -13,6 +14,7 @@ import pwr
 import led
 import buzzer
 import pyirw
+import tts, tts_main
 
 import RPi.GPIO as GPIO
 import time
@@ -155,6 +157,8 @@ def handle_ir_recv():
             led.led_b_toggle()
 
         buzzer.buzzer_beep(0.01)
+
+        tts_main.parse_key(keyname)
 
 def set_led_manual():
     if handle_led.manual == False:

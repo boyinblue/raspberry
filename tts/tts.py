@@ -1,14 +1,15 @@
 import speech_recognition as sr
 from gtts import gTTS
 import os
-import time
 import playsound
+import tempfile
 
 def speak(text):
+    fd, filename = tempfile.mkstemp()
     tts = gTTS(text=text, lang='ko')
-    filename = 'voice.mp3'
     tts.save(filename)
     playsound.playsound(filename)
+    os.unlink(filename)
 
 def main():
     speak("안녕하세요. 저는 박선우입니다.")
