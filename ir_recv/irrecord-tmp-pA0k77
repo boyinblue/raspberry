@@ -1,0 +1,79 @@
+
+# Please take the time to finish this file as described in
+# https://sourceforge.net/p/lirc-remotes/wiki/Checklist/
+# and make it available to others by sending it to
+# <lirc@bartelmus.de>
+#
+# This config file was automatically generated
+# using lirc-0.10.1(default) on Sat Apr 16 14:20:09 2022
+# Command line used: 
+# Kernel version (uname -r): 5.13.0-1024-raspi
+#
+# Remote name (as of config file): SAMSUNG
+# Brand of remote device, the thing you hold in your hand:
+# Remote device model nr:
+# Remote device info url:
+# Does remote device has a bundled capture device e. g., a
+#     usb dongle? :
+# For bundled USB devices: usb vendor id, product id
+#     and device string (use dmesg or lsusb):
+# Type of device controlled
+#     (TV, VCR, Audio, DVD, Satellite, Cable, HTPC, ...) :
+# Device(s) controlled by this remote:
+
+begin remote
+
+  name  SAMSUNG
+  bits           32
+  flags SPACE_ENC|CONST_LENGTH
+  eps            30
+  aeps          100
+
+  header       4508  4549
+  one           524  1724
+  zero          524   598
+  ptrail        523
+  gap          108425
+  toggle_bit_mask 0x0
+
+      begin codes
+          KEY_FORWARD              0xE0E012ED
+          KEY_REWIND               0xE0E0A25D 0x00000000
+          KEY_PLAY                 0xE0E0E21D 0x00000000
+          KEY_PAUSE                0xE0E052AD 0x00000000
+          KEY_STOP                 0xE0E0629D 0x00000000
+          KEY_SUBTITLE             0xE0E0A45B 0x00000000
+          KEY_HELP                 0xE0E0FC03 0x00000000
+          KEY_SPORT                0xE0E01DE2 0x00000000
+          KEY_RED                  0xE0E036C9 0x00000000
+          KEY_GREEN                0xE0E028D7 0x00000000
+          KEY_YELLOW               0xE0E0A857 0x00000000
+          KEY_BLUE                 0xE0E06897 0x00000000
+          KEY_BACK                 0xE0E01AE5 0x00000000
+          KEY_EXIT                 0xE0E0B44B 0x00000000
+          KEY_DOWN                 0xE0E08679 0x00000000
+          KEY_UP                   0xE0E006F9 0x00000000
+          KEY_LEFT                 0xE0E0A659 0x00000000
+          KEY_RIGHT                0xE0E046B9 0x00000000
+          KEY_ENTER                0xE0E016E9 0x00000000
+          KEY_INFO                 0xE0E0F807 0x00000000
+          KEY_CONTEXT_MENU         0xE0E058A7 0x00000000
+          KEY_VOLUMEDOWN           0xE0E0D02F 0x00000000
+          KEY_VOLUMEUP             0xE0E0E01F 0x00000000
+          KEY_CHANNELDOWN          0xE0E008F7 0x00000000
+          KEY_CHANNELUP            0xE0E048B7 0x00000000
+          KEY_PREVIOUS             0xE0E0C837 0x00000000
+          KEY_MINUS                0xE0E0C43B 0x00000000
+          KEY_1                    0xE0E020DF 0xFFFFFFFFFFFFFFFF
+          KEY_2                    0xE0E0A05F 0x00000000
+          KEY_3                    0xE0E0609F 0x00000000
+          KEY_4                    0xE0E010EF 0x00000000
+          KEY_5                    0xE0E0906F 0x00000000
+          KEY_6                    0xE0E050AF 0x00000000
+          KEY_7                    0xE0E030CF 0xFFFFFFFFFFFFFFFF
+          KEY_8                    0xE0E0B04F 0xFFFFFFFFFFFFFFFF
+          KEY_9                    0xE0E0708F 0xFFFFFFFFFFFFFFFF
+          KEY_0                    0xE0E08877 0xFFFFFFFFFFFFFFFF
+      end codes
+
+end remote

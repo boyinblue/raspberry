@@ -14,7 +14,7 @@ import pwr
 import led
 import buzzer
 import pyirw
-import tts, tts_main
+import tts_main
 
 import RPi.GPIO as GPIO
 import time
@@ -24,7 +24,7 @@ pipe_path = "/tmp/mypipe"
 
 cnt_for_off = 0
 state = {"sensor":0}
-sensor_option = True
+sensor_option = False
 pin_nums = {
     "light":27,
     "sensor_light":22,
