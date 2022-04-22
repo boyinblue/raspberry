@@ -18,9 +18,13 @@ def pwr_off():
     GPIO.output(pin_num, True) #Low Active
 
 def pwr_reset():
-    pwr_off()
-    time.sleep(15)
+    if GPIO.input(pin_num) == 0:
+        print("Pwr Off For 15 secs")
+        pwr_off()
+        time.sleep(15)
+    print("Pwr On")
     pwr_on()
 
 if __name__ == '__main__':
+    pwr_init()
     pwr_reset()

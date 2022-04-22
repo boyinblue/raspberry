@@ -2,8 +2,8 @@ import time
 import sys
 from light import LightCtrl
 
-light = LightCtrl(27, True)
-sensor_light = LightCtrl(22, True)
+light = LightCtrl(24, True)
+sensor_light = LightCtrl(25, True)
 
 def parsing_cmd(cmd):
     if cmd.lower() == "on":
@@ -12,6 +12,12 @@ def parsing_cmd(cmd):
         light.off()
     elif cmd.lower() == "toggle":
         light.toggle()
+    if cmd.lower() == "son":
+        sensor_light.on()
+    elif cmd.lower() == "soff":
+        sensor_light.off()
+    elif cmd.lower() == "stoggle":
+        sensor_light.toggle()
     elif cmd.lower() == "quit" or cmd.lower() == "exit":
         exit()
     else:

@@ -26,14 +26,14 @@ cnt_for_off = 0
 state = {"sensor":0}
 sensor_option = False
 pin_nums = {
-    "light":27,
-    "sensor_light":22,
-    "ir_sensor":18,
-    "sw1":24,
-    "sw2":4,
-    "sw3":26,
-    "sw4":6,
-    "buzzer":25}
+    "light":24,
+    "sensor_light":25,
+    "ir_sensor":26,
+    "sw1":4,
+    "sw2":17,
+    "sw3":6,
+    "sw4":19,
+    "buzzer":13}
 
 def init():
     GPIO.setmode(GPIO.BCM)
@@ -43,7 +43,7 @@ def init():
 
     buzzer.buzzer_init(pin_nums['buzzer'])
 
-    led.led_all_off()
+    led.led_init()
 
     pyirw.init_irw(blocking = False)
 
@@ -78,7 +78,7 @@ def handle_sensor_light():
     global sensor_option
 
 #    buzzer.buzzer_off()
-    if sensor_option == False:
+    if sensor_option == False and state['sensor']:
         sensor_light.off()
         cnt_for_off = 0
         state['sensor'] = 0
@@ -131,6 +131,8 @@ def handle_pipe(pipe):
             set_sensor_option(True)
         elif message[:14] == "Sensor Disable":
             set_sensor_option(False)
+        else:
+            print("Unknown Command")
 
 def handle_input():
     for sensor in sensors:

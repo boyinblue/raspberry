@@ -4,7 +4,7 @@ import time
 
 pin_num = None
 
-def buzzer_init(buzzer_pin_num = 25):
+def buzzer_init(buzzer_pin_num = 13):
     global pin_num
 
     pin_num = buzzer_pin_num
@@ -37,7 +37,7 @@ def buzzer_beep(duration=0.1, times=1):
         time.sleep(float(duration))
 
 def main():
-    buzzer_init(25)
+    buzzer_init()
 
     if sys.argv[1] == "on":
         buzzer_on()
