@@ -16,8 +16,14 @@ playlist = []
 def check_next():
     if len(playlist):
         filename = playlist[0]
-        play_sound( filename )
-        playlist.remove( filename )
+        state = playbin.get_state(Gst.State.NULL)
+        if state.state == Gst.State.PLAYING:
+            return
+        print("play next")
+        print(playlist)
+        del playlist[0]
+        print("after delete")
+        print(playlist)
         if Gst.uri_is_valid(filename):
             uri = args[1]
         else:
@@ -29,6 +35,7 @@ def check_next():
 def bus_call(bus, message, loop):
     t = message.type
     if t == Gst.MessageType.EOS:
+        playbin.set_state(Gst.State.READY)
         check_next()
     elif t == Gst.MessageType.ERROR:
         err, debug = message.parse_error()
