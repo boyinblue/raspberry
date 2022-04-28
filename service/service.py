@@ -30,7 +30,7 @@ pin_nums = {
     "sensor_light":25,
     "ir_sensor":26,
     "sw1":4,
-    "sw2":17,
+    "sw2":27,
     "sw3":6,
     "sw4":19,
     "buzzer":13}
@@ -124,9 +124,9 @@ def handle_pipe(pipe):
         print("Received : ", message)
 
         if message[:14] == "Turn Off Light":
-            sensor_light.off()
+            light.off()
         elif message[:13] == "Turn On Light":
-            sensor_light.on()
+            light.on()
         elif message[:13] == "Sensor Enable":
             set_sensor_option(True)
         elif message[:14] == "Sensor Disable":
@@ -157,6 +157,8 @@ def handle_ir_recv():
         elif keyname == "KEY_BLUE":
             set_led_manual()
             led.led_b_toggle()
+        elif keyname == "KEY_YELLOW":
+            light.toggle()
 
         buzzer.buzzer_beep(0.01)
 

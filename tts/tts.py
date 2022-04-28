@@ -12,13 +12,35 @@ def speak(text):
     tts.save(filename)
     play_mp3(filename)
 
+pipe_path = "/tmp/mp3_player"
+pipe_fd = None
+
+def open_pipe():
+    global pipe_fd
+
+    if not os.path.exists(pipe_path):
+        os.mkfifo(pipe_path)
+    os.chmod(pipe_path, 0o666)
+    pipe_fd = os.open(pipe_path, os.O_RDWR | os.O_CREAT | os.O_NONBLOCK)
+    return os.fdopen(pipe_fd)
+
 def play_mp3(filename):
+    global pipe_fd
+
+    if not pipe_fd:
+        open_pipe()
+
+    print("fd :", pipe_fd)
+
+    message = "{}\n".format(filename)
+    arr = bytes(message, 'utf-8')
+    os.write(pipe_fd, arr)
+    return
     try:
         fp = open("/tmp/mp3_player", "w")
     except PermissionError:
         print("Permission Error")
         return
-    fp.write("{}\n".format(filename))
 
 def main():
     tts_main.play_mp3()
