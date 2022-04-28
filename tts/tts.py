@@ -1,62 +1,131 @@
 import speech_recognition as sr
 from gtts import gTTS
 import os
+import gi
+gi.require_version('Gst', '1.0')
+from gi.repository import GObject, Gst
 import tempfile
-import tts_main
+import sys
+import threading
+import time
 
-def speak(text):
-    print("play : ", text)
-    fd, filename = tempfile.mkstemp()
-    filename = "{}.mp3".format(filename)
-    tts = gTTS(text=text, lang='ko')
-    tts.save(filename)
-    play_mp3(filename)
+playbin = None
+loop = None
+playlist = []
 
 pipe_path = "/tmp/mp3_player"
-pipe_fd = None
+pipe = None
 
 def open_pipe():
-    global pipe_fd
-
     if not os.path.exists(pipe_path):
         os.mkfifo(pipe_path)
     os.chmod(pipe_path, 0o666)
-    pipe_fd = os.open(pipe_path, os.O_RDWR | os.O_CREAT | os.O_NONBLOCK)
+    pipe_fd = os.open(pipe_path, os.O_RDONLY | os.O_NONBLOCK)
     return os.fdopen(pipe_fd)
 
-def play_mp3(filename):
-    global pipe_fd
+def handle_pipe(pipe):
+    global sensor_option
 
-    if not pipe_fd:
-        open_pipe()
+    message = pipe.readline()
+    if message:
+        print("Received : ", message)
 
-    print("fd :", pipe_fd)
+def check_next():
+    if len(playlist):
+        filename = playlist[0]
+        state = playbin.get_state(Gst.State.NULL)
+        if state.state == Gst.State.PLAYING:
+            return
+        del playlist[0]
+        if Gst.uri_is_valid(filename):
+            uri = filename
+        else:
+            uri = Gst.filename_to_uri(filename)
+        playbin.set_property('uri', uri)
 
-    message = "{}\n".format(filename)
-    arr = bytes(message, 'utf-8')
-    os.write(pipe_fd, arr)
-    return
+        playbin.set_state(Gst.State.PLAYING)
+
+def bus_call(bus, message, loop):
+    t = message.type
+    if t == Gst.MessageType.EOS:
+        playbin.set_state(Gst.State.READY)
+        check_next()
+    elif t == Gst.MessageType.ERROR:
+        err, debug = message.parse_error()
+        sys.stderr.write("Error: %s: %s\n" % (err, debug))
+        loop.quit()
+    return True
+
+def check_play_state():
+    state = playbin.get_state(Gst.State.NULL)
+    if state.state == Gst.State.PLAYING:
+        print("Playing")
+    elif state.state == Gst.State.READY:
+        print("Ready")
+    elif state.state == Gst.State.PAUSED:
+        print("Paused")
+    elif state.state == Gst.State.NULL:
+        print("Null")
+    else:
+        print("Unknown State")
+        print(state)
+
+def play_sound(filename):
+    print("Add :", filename)
+    playlist.append(filename)
+
+def speak(text):
+    fd, filename = tempfile.mkstemp()
     try:
-        fp = open("/tmp/mp3_player", "w")
-    except PermissionError:
-        print("Permission Error")
+        tts = gTTS(text=text, lang='ko')
+    except ConnectionError:
+        print("Connection Error")
         return
+    tts.save(filename)
+    play_sound(filename)
+
+def init():
+    global pipe
+    global playbin
+
+    GObject.threads_init()
+    Gst.init(None)
+
+    playbin = Gst.ElementFactory.make("playbin", None)
+    if not playbin:
+        sys.stderr.write("'playbin' gstreamer plugin missing\n")
+        sys.exit(1)
+
+    # create and event loop and feed gstreamer bus mesages to it
+    loop = GObject.MainLoop()
+
+    bus = playbin.get_bus()
+    bus.add_signal_watch()
+    bus.connect ("message", bus_call, loop)
+
+    play_thread = threading.Thread(target=loop.run, daemon=True)
+    play_thread.start()
+
+    # Create Pipe
+    pipe = open_pipe()
+
+def handle():
+    handle_pipe(pipe)
 
 def main():
-    tts_main.play_mp3()
-    return
+    init()
 
-    speak("안녕하세요. 현업 SW 개발자입니다.")
-    speak("안녕하세요. 저는 박선우입니다.")
-    speak("안녕하세요. 박선우")
-    speak("똥 나와요. 박세진")
-    speak("똥 나왔어요. 박서준")
-    speak("똥 나와요. 신미현")
-    speak("똥 나와요. 아저씨")
-    speak("너무 냄새나요 똥")
-    speak("옛날 옛적에 응가 박사가 살았어요. 응가 박사는 한 번에 응가를 1톤씩은 싸곤 했어요. 그러던 어느 날, 다른 나라에서 방구 대장이 쳐들어 왔어요. 응가 박사는 방구 대장에 맞서서 열심히 싸웠어요.")
-    play_mp3("next")
+#    speak("안녕하세요.")
+#    speak("저는 뽁스입니다.")
 
+    try:
+        while True:
+            handle()
+            check_next()
+            time.sleep(1)
+    except KeyboardInterrupt:
+        exit(0)
+    
 if __name__ == '__main__':
     main()
 
