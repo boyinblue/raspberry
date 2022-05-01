@@ -35,10 +35,39 @@ pin_nums = {
     "sw3":6,
     "sw4":19,
     "buzzer":13}
+sensors = []
+light = None
+sensor_light = None
+ir_sensor = None
 
 def init():
+    global sensors
+    global light
+    global sensor_light
+    global ir_sensor
+
     GPIO.setmode(GPIO.BCM)
     atexit.register(exit_handler)
+
+    light = LightCtrl(pin_nums['light'], True)
+    sensor_light = LightCtrl(pin_nums['sensor_light'], True)
+
+    ir_sensor = Sensor(pin_nums['ir_sensor'])
+    ir_sensor.regist_on_callback(sensor_turn_on)
+
+    sw1 = Sensor(pin_nums['sw1'], True)
+    sw1.regist_on_callback(pwr.pwr_off)
+
+    sw2 = Sensor(pin_nums['sw2'], True)
+    sw2.regist_on_callback(pwr.pwr_on)
+
+    sw3 = Sensor(pin_nums['sw3'], True)
+    sw3.regist_on_callback(light.toggle)
+
+    sw4 = Sensor(pin_nums['sw4'], True)
+    sw4.regist_on_callback(toggle_sensor_option)
+
+    sensors = [ ir_sensor, sw1, sw2, sw3, sw4 ]
 
     pwr.pwr_init()
 
@@ -198,25 +227,6 @@ handle_led.run_cnt = 0
 handle_led.manual = False
 handle_led.manual_cnt = 0
 
-light = LightCtrl(pin_nums['light'], True)
-sensor_light = LightCtrl(pin_nums['sensor_light'], True)
-
-ir_sensor = Sensor(pin_nums['ir_sensor'])
-ir_sensor.regist_on_callback(sensor_turn_on)
-
-sw1 = Sensor(pin_nums['sw1'], True)
-sw1.regist_on_callback(pwr.pwr_off)
-
-sw2 = Sensor(pin_nums['sw2'], True)
-sw2.regist_on_callback(pwr.pwr_on)
-
-sw3 = Sensor(pin_nums['sw3'], True)
-sw3.regist_on_callback(light.toggle)
-
-sw4 = Sensor(pin_nums['sw4'], True)
-sw4.regist_on_callback(toggle_sensor_option)
-
-sensors = [ ir_sensor, sw1, sw2, sw3, sw4 ]
 
 
 def main():
