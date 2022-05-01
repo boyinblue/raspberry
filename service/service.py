@@ -14,7 +14,6 @@ import pwr
 import led
 import buzzer
 import pyirw
-import tts_client
 import tts_main
 
 import RPi.GPIO as GPIO
@@ -78,8 +77,10 @@ def init():
     pyirw.init_irw(blocking = False)
 
 def exit_handler():
-    light.off()
-    sensor_light.off()
+    if light:
+        light.off()
+    if sensor_light:
+        sensor_light.off()
 
 def sensor_turn_on():
     global cnt_for_off
