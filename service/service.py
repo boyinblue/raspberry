@@ -77,6 +77,9 @@ def init():
     pyirw.init_irw(blocking = False)
 
 def exit_handler():
+    print("")
+    print("Exit")
+
     if light:
         light.off()
     if sensor_light:
@@ -88,7 +91,7 @@ def sensor_turn_on():
     global sensor_option
 
     if sensor_option == False:
-        print("Do not turn on light")
+#        print("Do not turn on light")
         return
 
     cnt_for_off = 0
