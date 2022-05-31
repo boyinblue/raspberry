@@ -2,6 +2,7 @@
 
 # Get Serial Number Of Rpi
 serial_number=$(cat /proc/cpuinfo | grep Serial | awk '{print $3}')
+hostname=$(hostname)
 
 public_ip_file="IP_${serial_number}.txt"
 public_ip_temp_file="tmp/IP_${serial_number}.txt"
@@ -50,7 +51,7 @@ function new_issue
   body=$(cat ${input_file})
   body=${body//\"/\\\"}
 
-  json="{ \"title\" : \"${msn}\",
+  json="{ \"title\" : \"[${hostname}] ${msn}\",
           \"body\" : \"${body}\",
           \"assignees\" : [\"${id}\"] }"
   echo ${json} | tee ${output_file}
@@ -68,15 +69,17 @@ function new_issue
 
 function update_issue
 {
-  echo "Update Issue : ${1} ${2}"
+  echo "Update Issue : ${1} ${2} ${3}"
   input_file=${1}
   issue_number=${2}
+  msn=${3}
 #  output_file=${input_file/.*/.json}
 
   body=$(cat ${input_file})
   body=${body//\"/\\\"}
 
-  json="{ \"body\" : \"${body}\" }"
+  json="{ \"title\" : \"[${hostname}] ${msn}\",
+          \"body\" : \"${body}\" }"
   echo ${json} > ${output_file}
 
   #echo "{ \"body\" : \"${body}\" }" | \
@@ -94,10 +97,19 @@ git pull
 
 mkdir -p tmp
 
+# Check Serial Number
 if [ "$serial_number" == "" ]; then
   echo "Cannot get serial number!"
   echo "This script can be executed only on Raspberry Pi machine"
   exit 1
+fi
+
+# Check hub package works
+echo "Check hub version"
+hub_version=$(hub --version)
+if [ "${?}" != "0" ]; then
+  echo "Cannot run hub."
+  exit 2
 fi
 
 # Get Actul Public IP
@@ -116,12 +128,6 @@ if [ "${public_ip}" != "${public_ip_prev}" ]; then
 	git commit -m "Update public ip file auto"
 	git push
 
-	# Send Email
-	cp email_header.txt "${email_content}"
-	echo "<b>${public_ip}</b>" >> "${email_content}"
-	cat "${email_content}" | ssmtp -t -v
-	echo "${public_ip}" > "${public_ip_temp_file}"
-
 	# Update GitHub Issue
 	get_credential
     get_issue_id "$serial_number"
@@ -129,7 +135,13 @@ if [ "${public_ip}" != "${public_ip_prev}" ]; then
     if [ "$issue_id" == "0" ]; then
         new_issue ${public_ip_file} ${serial_number}
     else
-        update_issue ${public_ip_file} ${issue_id}
+        update_issue ${public_ip_file} ${issue_id} ${serial_number}
     fi
+
+	# Send Email
+	cp email_header.txt "${email_content}"
+	echo "<b>${public_ip}</b>" >> "${email_content}"
+	cat "${email_content}" | ssmtp -t -v
+	echo "${public_ip}" > "${public_ip_temp_file}"
 fi
 
