@@ -4,7 +4,7 @@
 serial_number=$(cat /proc/cpuinfo | grep Serial | awk '{print $3}')
 
 public_ip_file="IP_${serial_number}.txt"
-public_ip_temp_file="tmp/public_ip.txt"
+public_ip_temp_file="tmp/IP_${serial_number}.txt"
 email_content="tmp/email.txt"
 output_file="tmp/issue_update.json"
 
@@ -33,8 +33,8 @@ function get_issue_id
   for line in $issues
   do
     if [[ "$line" == *"$1"* ]]; then
-      id=${line%%\|*}
-      return $id
+      issue_id=${line%%\|*}
+      return $issue_id
     fi
   done
 
@@ -43,21 +43,24 @@ function get_issue_id
 
 function new_issue
 {
-  echo "Create Issue : ${1}"
+  echo "Create Issue : ${1} ${2}"
   input_file=${1}
+  msn=${2}
 
   body=$(cat ${input_file})
   body=${body//\"/\\\"}
 
-  json="{ \"body\" : \"${body}\" }"
-  echo ${json} > ${output_file}
+  json="{ \"title\" : \"${msn}\",
+          \"body\" : \"${body}\",
+          \"assignees\" : [\"${id}\"] }"
+  echo ${json} | tee ${output_file}
 
   #echo "{ \"body\" : \"${body}\" }" | \
 
   cat ${output_file} | \
     curl \
+    -X POST \
     -u ${id}:${token} \
-    -X PUSH \
     -H "Accept: application/vnd.github.v3+json" \
     --data-binary @- \
     https://api.github.com/repos/${id}/raspberry/issues
@@ -116,11 +119,11 @@ if [ "${public_ip}" != "${public_ip_prev}" ]; then
 	# Update GitHub Issue
 	get_credential
     get_issue_id "$serial_number"
-    id=${?}
-    if [ $id == 0 ]; then
-        new_issue ${public_ip_file}
+    issue_id=${?}
+    if [ "$issue_id" == "0" ]; then
+        new_issue ${public_ip_file} ${serial_number}
     else
-        update_issue ${public_ip_file} $id
+        update_issue ${public_ip_file} ${issue_id}
     fi
 fi
 
