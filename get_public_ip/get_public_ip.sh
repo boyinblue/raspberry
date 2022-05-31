@@ -94,6 +94,12 @@ git pull
 
 mkdir -p tmp
 
+if [ "$serial_number" == "" ]; then
+  echo "Cannot get serial number!"
+  echo "This script can be executed only on Raspberry Pi machine"
+  exit 1
+fi
+
 # Get Actul Public IP
 public_ip=$(curl ifconfig.me)
 
