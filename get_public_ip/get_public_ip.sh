@@ -29,7 +29,13 @@ function get_credential
 
 function get_issue_id
 {
+  echo "========================"
+  echo "get_issue_id"
+  echo "========================"
   issues=$(hub issue -f%I\|%t%n)
+  echo "${issues}"
+  echo "========================"
+  echo ""
   
   for line in $issues
   do
@@ -117,31 +123,31 @@ public_ip=$(curl ifconfig.me)
 
 # Get Previous Publiuc IP
 if [ -e ${public_ip_temp_file} ]; then
-	public_ip_prev=$(cat ${public_ip_temp_file})
+  public_ip_prev=$(cat ${public_ip_temp_file})
 fi
 
 # If IP is changed?
 if [ "${public_ip}" != "${public_ip_prev}" ]; then
-	# Add GitHub Repository
-	echo ${public_ip} > ${public_ip_file}
-	git add ${public_ip_file}
-	git commit -m "Update public ip file auto"
-	git push
+  # Add GitHub Repository
+  echo ${public_ip} > ${public_ip_file}
+  git add ${public_ip_file}
+  git commit -m "Update public ip file auto"
+  git push
 
-	# Update GitHub Issue
-	get_credential
-    get_issue_id "$serial_number"
-    issue_id=${?}
-    if [ "$issue_id" == "0" ]; then
-        new_issue ${public_ip_file} ${serial_number}
-    else
-        update_issue ${public_ip_file} ${issue_id} ${serial_number}
-    fi
+  # Update GitHub Issue
+  get_credential
+  get_issue_id "$serial_number"
+  issue_id=${?}
+  if [ "$issue_id" == "0" ]; then
+    new_issue ${public_ip_file} ${serial_number}
+  else
+    update_issue ${public_ip_file} ${issue_id} ${serial_number}
+  fi
 
-	# Send Email
-	cp email_header.txt "${email_content}"
-	echo "<b>${public_ip}</b>" >> "${email_content}"
-	cat "${email_content}" | ssmtp -t -v
-	echo "${public_ip}" > "${public_ip_temp_file}"
+  # Send Email
+  cp email_header.txt "${email_content}"
+  echo "<b>${public_ip}</b>" >> "${email_content}"
+  cat "${email_content}" | ssmtp -t -v
+  echo "${public_ip}" > "${public_ip_temp_file}"
 fi
 
