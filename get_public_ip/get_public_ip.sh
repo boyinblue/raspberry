@@ -37,15 +37,18 @@ function get_issue_id
   echo "========================"
   echo ""
   
+  OLDIFS=$IFS
+  IFS=$'\n'
   for line in $issues
   do
     if [[ "$line" == *"$1"* ]]; then
       issue_id=${line%%\|*}
-      return $issue_id
+      echo "issue_id : ${issue_id}"
     fi
   done
+  IFS=$OLDIFS
 
-  return 0
+  return $issue_id
 }
 
 function new_issue
