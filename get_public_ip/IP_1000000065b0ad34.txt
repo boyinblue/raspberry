@@ -1,3 +1,1 @@
-IP:211.224.67.31
-SN:1000000065b0ad34
-Hostname:RpiSeongJu
+upstream connect error or disconnect/reset before headers. reset reason: connection termination
