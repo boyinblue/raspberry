@@ -19,6 +19,13 @@ function get_rtc
   fi
 }
 
+if [ "${1}" != "" ]; then
+  ip="${1}"
+  echo "Checking IP ${ip}"
+  get_rtc "${ip}"
+  exit 0
+fi
+
 for ip in ${ips[@]}
 do
   echo "Checking IP ${ip}"
