@@ -1,11 +1,9 @@
 #!/bin/bash
 
 # Get Serial Number Of Rpi
-serial_number=$(cat /proc/cpuinfo | grep Serial | awk '{print $3}')
 hostname=$(hostname)
 
-public_ip_file="IP_${serial_number}.txt"
-public_ip_temp_file="tmp/IP_${serial_number}.txt"
+serial_number_path="tmp/serial_number.txt"
 email_content="tmp/email.txt"
 output_file="tmp/issue_update.json"
 
@@ -25,6 +23,28 @@ function get_credential
 	credential=${credential##https://${id}:}
 	token=${credential%%@*}
 	echo "token : ${token}"
+}
+
+function get_serial_number
+{
+  # Case1. Raspberry Pi
+  serial_number=$(cat /proc/cpuinfo | grep Serial | awk '{print $3}')
+  if [ "${serial_number}" != "" ]; then
+    return
+  fi
+
+  # Case2. General Purpose PC
+  # Case2-1. If serial number file is exist
+  if [ ! -e "${serial_number_path}" ]; then
+    sudo dmidecode -s system-serial-number | tee "${serial_number_path}"
+  fi
+  serial_number=$(cat "${serial_number_path}")
+
+  # Case2-2. If serial number is empty
+  if [ "${serial_number}" == "" ]; then
+    sudo dmidecode -s system-serial-number | tee "${serial_number_path}"
+    serial_number=$(cat "${serial_number_path}")
+  fi
 }
 
 function get_issue_id
@@ -67,6 +87,7 @@ function new_issue
 
   #echo "{ \"body\" : \"${body}\" }" | \
 
+  set -x
   cat ${output_file} | \
     curl \
     -X POST \
@@ -74,6 +95,7 @@ function new_issue
     -H "Accept: application/vnd.github.v3+json" \
     --data-binary @- \
     https://api.github.com/repos/${id}/raspberry/issues
+  set +x
 }
 
 function update_issue
@@ -107,11 +129,13 @@ git pull
 mkdir -p tmp
 
 # Check Serial Number
+get_serial_number
 if [ "$serial_number" == "" ]; then
   echo "Cannot get serial number!"
-  echo "This script can be executed only on Raspberry Pi machine"
   exit 1
 fi
+public_ip_file="IP_${serial_number}.txt"
+public_ip_temp_file="tmp/IP_${serial_number}.txt"
 
 # Check hub package works
 echo "Check hub version"
