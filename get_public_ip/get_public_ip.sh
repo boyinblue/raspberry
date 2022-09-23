@@ -149,14 +149,14 @@ fi
 public_ip=$(curl ifconfig.me)
 
 # Get Previous Publiuc IP
-if [ -e ${public_ip_temp_file} ]; then
+if [ -e "${public_ip_temp_file}" ]; then
   public_ip_prev=$(cat ${public_ip_temp_file})
 fi
 
 # If IP is changed?
 if [ "${public_ip}" != "${public_ip_prev}" ]; then
   # Add GitHub Repository
-  echo ${public_ip} > ${public_ip_file}
+  echo "${public_ip}" > ${public_ip_file}
   git add ${public_ip_file}
   git commit -m "Update public ip file auto"
   git push
