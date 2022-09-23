@@ -45,6 +45,10 @@ function get_serial_number
     sudo dmidecode -s system-serial-number | tee "${serial_number_path}"
     serial_number=$(cat "${serial_number_path}")
   fi
+
+  if [ "${serial_number}" == "To Be Filled By O.E.M." ]; then
+    serial_number="N/A"
+  fi
 }
 
 function get_issue_id
