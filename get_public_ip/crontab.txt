@@ -1,0 +1,1 @@
+0 * * * * cd ~/project/crontab/raspberry/get_public_ip; ./get_public_ip.sh
