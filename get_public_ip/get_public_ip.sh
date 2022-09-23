@@ -47,7 +47,7 @@ function get_serial_number
   fi
 
   if [ "${serial_number}" == "To Be Filled By O.E.M." ]; then
-    serial_number="N/A"
+    serial_number="None"
   fi
 }
 
