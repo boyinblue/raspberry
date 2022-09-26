@@ -1,6 +1,0 @@
-To: boyinblue@hanmail.net, fungkmuri@naver.com
-From: esregnet0409@gmail.com
-MIME-Version: 1.0
-Content-Type: text/html; charset=utf-8
-Subject: [Raspberry Pi] Public IP
-<b>This is auto generated message by robot.</b><br>
