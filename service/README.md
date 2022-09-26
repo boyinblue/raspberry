@@ -102,4 +102,12 @@ $ sudo apt-get install python3-rpi.gpio
 ```
 
 
+파이썬 모듈을 설치하기 위한 python-pip3 패키지도 설치해줍니다.
+
+
+```
+$ sudo apt-get install python3-pip
+```
+
+
 
