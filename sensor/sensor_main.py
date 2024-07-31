@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from sensor import Sensor
 import time
 
