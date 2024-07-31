@@ -1,3 +1,5 @@
+#!/bin/usr/env python
+
 import RPi.GPIO as GPIO
 import sys
 
@@ -5,7 +7,6 @@ led_pin = {'r':21, 'g':20, 'b':16}
 
 def led_init(r=21, g=20, b=16):
     global led_pin
-    global led_r_pin, led_g_pin, led_b_pin
 
     led_pin['r'] = r
     led_pin['g'] = g
@@ -79,11 +80,11 @@ def main():
 
     pin_num = None
     if sys.argv[1] == "r":
-        pin_num = led_r_pin
+        pin_num = led_pin['r']
     elif sys.argv[1] == "g":
-        pin_num = led_g_pin
+        pin_num = led_pin['g']
     elif sys.argv[1] == 'b':
-        pin_num = led_b_pin
+        pin_num = led_pin['b']
     else:
         print("Unknown pin :", sys.argv[1])
         return
