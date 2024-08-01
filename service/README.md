@@ -110,4 +110,27 @@ $ sudo apt-get install python3-pip
 ```
 
 
+### 회로 구성
 
+|Name|PinMap|PinMap|Name|
+|---|---|---|---|
+|          |3V3   |5V    |   |
+|          |GPIO2 |5V    |   |
+|          |GPIO3 |GND   |   |
+|SW1       |GPIO4 |GPIO14|   |
+|          |GND   |GPIO15|   |
+|          |GPIO17|GPIO18|   |
+|SW2       |GPIO27|GND   |   |
+|          |GPIO22|GPIO23|   |
+|          |3V3   |GPIO24|Light|
+|          |GPIO10|5V    |   |
+|          |GPIO9 |GPIO25|Sensor Light|
+|          |GPIO11|GPIO8 |   |
+|          |GND   |GPIO7 |   |
+|          |ID_SD |ID_SC |   |
+|          |GPIO5 |GND   |   |
+|SW3       |GPIO6 |GPIO12|   |
+|BUZZER    |GPIO13|GND   |   |
+|SW4       |GPIO19|GPIO16|   |
+|IR Sensor |GPIO26|GPIO20|   |
+|          |GND   |GPIO21|   |

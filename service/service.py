@@ -6,17 +6,17 @@ import os
 sys.path.append("../pwr")
 sys.path.append("../led")
 sys.path.append("../buzzer")
-sys.path.append("../ir_recv")
+#sys.path.append("../ir_recv")
 sys.path.append("../sensor")
-sys.path.append("../../tts")
+#sys.path.append("../../tts")
 
 from light import LightCtrl
 from sensor import Sensor
 import pwr
 import led
 import buzzer
-import pyirw
-import tts_main
+#import pyirw
+#import tts_main
 
 import RPi.GPIO as GPIO
 import time
@@ -76,7 +76,7 @@ def init():
 
     led.led_init()
 
-    pyirw.init_irw(blocking = False)
+#    pyirw.init_irw(blocking = False)
 
 def exit_handler():
     print("")
@@ -96,6 +96,7 @@ def sensor_turn_on():
 #        print("Do not turn on light")
         return
 
+    buzzer.buzzer_beep(0.01)
     cnt_for_off = 0
     state['sensor'] = 1
     sensor_light.on()
@@ -104,16 +105,12 @@ def sensor_turn_on():
 def sensor_turn_off():
     pass
 
-def sensor_on():
-    pass
-#    buzzer.buzzer_on()
-
 def handle_sensor_light():
     global state
     global cnt_for_off
     global sensor_option
 
-#    buzzer.buzzer_off()
+    buzzer.buzzer_off()
     if sensor_option == False and state['sensor']:
         sensor_light.off()
         cnt_for_off = 0
@@ -174,6 +171,7 @@ def handle_input():
     for sensor in sensors:
         sensor.sweep()
 
+"""
 def handle_ir_recv():
     keyname, updown = pyirw.read_key()
     if keyname != '' and updown != '':
@@ -199,6 +197,7 @@ def handle_ir_recv():
         buzzer.buzzer_beep(0.01)
 
         tts_main.parse_key(keyname)
+"""
 
 def set_led_manual():
     if handle_led.manual == False:
@@ -234,18 +233,17 @@ handle_led.manual = False
 handle_led.manual_cnt = 0
 
 
-
 def main():
-    run_cnt = 0
     pipe = open_pipe()
 
     while True:
         handle_pipe(pipe)
         handle_input()
-        handle_ir_recv()
+#        handle_ir_recv()
         handle_led()
         handle_sensor_light()
         time.sleep(0.1)
+#        print(".")
 
 if __name__ == '__main__':
     init()
