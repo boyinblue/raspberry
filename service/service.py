@@ -157,11 +157,12 @@ def sensor_turn_on():
     global state
     global sensor_option
 
+    buzzer.buzzer_beep(0.1)
+
     if sensor_option == False:
 #        print("Do not turn on light")
         return
 
-    buzzer.buzzer_beep(0.01)
     cnt_for_off = 0
     state['sensor'] = 1
     sensor_light.on()
