@@ -3,7 +3,7 @@ Description=Raspberry Pi Monitoring Service
 
 [Service]
 Type=simple
-user=root
+User=root
 ExecStart=python3 service.py
 Restart=on-failure
 RestartSec=60

@@ -2,6 +2,9 @@
 
 import sys
 import os
+import socket
+import urllib.parse
+import urllib.request
 
 sys.path.append("../pwr")
 sys.path.append("../led")
@@ -40,6 +43,68 @@ sensors = []
 light = None
 sensor_light = None
 ir_sensor = None
+
+
+def load_env_file():
+    env_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+    env_path = os.path.abspath(env_path)
+
+    if not os.path.exists(env_path):
+        return
+
+    try:
+        with open(env_path, "r", encoding="utf-8") as env_file:
+            for raw_line in env_file:
+                line = raw_line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+
+                key, value = line.split("=", 1)
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+
+                if key and key not in os.environ:
+                    os.environ[key] = value
+    except Exception as error:
+        print(f"Failed to load .env file: {error}")
+
+
+def send_telegram_message(message):
+    token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+    chat_id = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+
+    if not token or not chat_id:
+        print("Telegram notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not set")
+        return
+
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    payload = urllib.parse.urlencode({"chat_id": chat_id, "text": message}).encode("utf-8")
+    request = urllib.request.Request(url, data=payload)
+
+    try:
+        with urllib.request.urlopen(request, timeout=5):
+            print("Telegram startup notification sent")
+    except Exception as error:
+        print(f"Failed to send Telegram notification: {error}")
+
+
+def get_local_ip_address():
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.connect(("8.8.8.8", 80))
+            return sock.getsockname()[0]
+    except Exception:
+        try:
+            return socket.gethostbyname(socket.gethostname())
+        except Exception:
+            return "unknown"
+
+
+def send_startup_notification():
+    hostname = socket.gethostname()
+    ip_address = get_local_ip_address()
+    message = f"raspberry_monitor service started on {hostname} (ip: {ip_address})"
+    send_telegram_message(message)
 
 def init():
     global sensors
@@ -246,7 +311,9 @@ def main():
 #        print(".")
 
 if __name__ == '__main__':
+    load_env_file()
     init()
+    send_startup_notification()
     try:
         main()
     except KeyboardInterrupt:

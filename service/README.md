@@ -83,6 +83,36 @@ $ sudo systemctl status raspberry_monitor
 ```
 
 
+### 텔레그램 시작 알림 설정
+
+
+서비스 시작 시 텔레그램 메시지를 보내려면 환경변수를 등록합니다.
+
+
+```bash
+$ sudo systemctl edit raspberry_monitor
+```
+
+
+아래 내용을 입력합니다.
+
+
+```
+[Service]
+Environment="TELEGRAM_BOT_TOKEN=<YOUR_BOT_TOKEN>"
+Environment="TELEGRAM_CHAT_ID=<YOUR_CHAT_ID>"
+```
+
+
+설정 후 데몬 리로드 및 서비스 재시작을 수행합니다.
+
+
+```bash
+$ sudo systemctl daemon-reload
+$ sudo systemctl restart raspberry_monitor
+```
+
+
 ### 패키지 설치
 
 
